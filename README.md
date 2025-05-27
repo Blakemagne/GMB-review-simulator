@@ -39,3 +39,10 @@ Adjust the star sliders or number inputs.
 View updated total reviews, average rating, and bar percentages.
 
 In the “How Many 5★ Reviews Needed?” section, fill in your current stats and click Calculate.
+
+## 🧑‍💻 Author
+
+**Blakemagne**  
+stonks god
+
+---
