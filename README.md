@@ -1,6 +1,6 @@
 # Review Rating Simulator
 
-A free, open-source web-based tool to visualize and simulate Google-style star ratings and forecast additional 5★ reviews needed to reach a target average. Built with vanilla HTML, CSS, and JavaScript, it mimics a Podium-style aesthetic and runs entirely client-side.
+A free, open-source web-based tool to visualize and simulate Google-style star ratings and forecast additional 5★ reviews needed to reach a target average. Built with vanilla HTML, CSS, and JavaScript, it mimics a Podium-style aesthetic and can run entirely client-side.
 
 ## 🚀 Features
 
