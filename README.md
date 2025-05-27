@@ -26,8 +26,6 @@ A free, open-source web-based tool to visualize and simulate Google-style star r
 
 - Click Calculate to see how many additional 5★ reviews you need.
 
-- Podium-inspired UI (Clean typography with Inter font, Soft shadows, rounded corners, and minimalist layout).
-
 - Responsive, mobile-friendly grid layouts.
 
 ## Usage:
