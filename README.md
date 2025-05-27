@@ -2,9 +2,9 @@
 
 A free, open-source web-based tool to visualize and simulate Google-style star ratings and forecast additional 5★ reviews needed to reach a target average. Built with vanilla HTML, CSS, and JavaScript, it mimics a Notion-style aesthetic and runs entirely client-side.
 
-# 🚀 Features
+## 🚀 Features
 
-## Interactive Sliders & Inputs
+### Interactive Sliders & Inputs
 
 - Adjust counts for each star rating (1★–5★).
 
@@ -18,7 +18,7 @@ A free, open-source web-based tool to visualize and simulate Google-style star r
 
 - Clamps sliders so total reviews never exceed the chosen scale.
 
-## 5★ Forecast Calculator
+### 5★ Forecast Calculator
 
 - Enter your current average rating and review count.
 
@@ -29,12 +29,6 @@ A free, open-source web-based tool to visualize and simulate Google-style star r
 - Podium-inspired UI (Clean typography with Inter font, Soft shadows, rounded corners, and minimalist layout).
 
 - Responsive, mobile-friendly grid layouts.
-
-## 📂 Files
-
-index.html — Main simulator page.
-
-README.md — This documentation.
 
 ## Usage:
 
