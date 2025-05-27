@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Rating Simulator</title>
+  <style>
+    /* Notion-inspired minimalist styling */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #fafafa; color: #333; padding: 40px; margin: 0; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 32px; }
+    h1 { font-size: 28px; font-weight: 600; margin-bottom: 16px; }
+    .stats { display: flex; gap: 48px; margin-bottom: 24px; }
+    .stat { display: flex; flex-direction: column; font-size: 14px; color: #666; }
+    .stat .value { font-size: 24px; font-weight: 600; color: #111; display: flex; align-items: center; margin-top: 4px; }
+    .stat .value .star { margin-left: 6px; color: #f2c94c; }
+    .scale-container { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+    .scale-container label { font-weight: 500; color: #444; }
+    .scale-container select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; background: #fff; font-size: 14px; }
+    .description { font-size: 14px; color: #555; margin-bottom: 24px; }
+    .slider-group { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .slider-group label { font-weight: 500; color: #444; }
+    input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #4caf50; border-radius: 50%; cursor: pointer; box-shadow: 0 0 2px rgba(0,0,0,0.2); transition: background 0.3s ease; }
+    input[type=range]::-webkit-slider-thumb:hover { background: #45a049; }
+    input[type=number] { padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
+    .error { grid-column: 2 / span 2; color: #d32f2f; font-size: 12px; visibility: hidden; }
+    .bar {
+      height: 24px; /* increased for better readability */
+      background: #f0f0f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .bar-inner {
+      height: 100%;
+      background: #4caf50;
+      transition: width 1.2s ease-in-out;
+      will-change: width;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+    .calc-container { margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee; }
+    .calc-container h2 { font-size: 20px; font-weight: 500; margin-bottom: 16px; color: #444; }
+    .calc-row { display: grid; grid-template-columns: 200px 1fr; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .calc-row label { font-size: 14px; color: #444; }
+    .calc-row input { padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
+    #calc-btn { padding: 8px 16px; font-size: 14px; background: #4caf50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    #calc-btn:hover { background: #45a049; }
+    .result { font-size: 16px; font-weight: 600; margin-top: 16px; color: #111; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Review Rating Simulator</h1>
+    <div class="stats">
+      <div class="stat"><div>Total Reviews</div><div id="total" class="value">0</div></div>
+      <div class="stat"><div>Average Rating</div><div id="average" class="value">0.00<span class="star">⭐</span></div></div>
+    </div>
+    <div class="scale-container">
+      <label for="scale">Scale</label>
+      <select id="scale">
+        <option value="1000">Up to 1,000</option>
+        <option value="10000">1,000 – 10,000</option>
+        <option value="50000">10,000 – 50,000</option>
+        <option value="500000">50,000 +</option>
+      </select>
+    </div>
+    <p class="description">Adjust star counts below to update distribution and ratings live.</p>
+    <div id="sliders"></div>
+    <div class="calc-container">
+      <h2>How Many 5★ Reviews Needed?</h2>
+      <div class="calc-row"><label for="current-rating">Current Avg Rating</label><input type="number" id="current-rating" min="0" max="5" step="0.01" placeholder="e.g. 4.25"></div>
+      <div class="calc-row"><label for="current-reviews">Current Reviews</label><input type="number" id="current-reviews" min="0" step="1" placeholder="e.g. 250"></div>
+      <div class="calc-row"><label for="desired-rating">Desired Avg Rating</label><input type="number" id="desired-rating" min="0" max="5" step="0.01" value="4.9" placeholder="e.g. 4.8"></div>
+      <button id="calc-btn">Calculate</button>
+      <div class="result" id="five-needed">Enter values and click "Calculate"</div>
+    </div>
+  </div>
+  <script>
+    const containerEl = document.getElementById('sliders');
+    const scaleSelect = document.getElementById('scale');
+    const stars = [5,4,3,2,1];
+    let maxVal = parseInt(scaleSelect.value);
+    const counts = {};
+    function createSliders(maxValue) {
+      maxVal = maxValue;
+      containerEl.innerHTML = '';
+      stars.forEach(star => { counts[star] = 0; });
+      stars.forEach(star => {
+        const group = document.createElement('div'); group.className = 'slider-group';
+        const label = document.createElement('label'); label.textContent = `${star}★`;
+        const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=maxVal; slider.step=1; slider.value=0; slider.id=`slider-${star}`;
+        const number = document.createElement('input'); number.type='number'; number.min=0; number.max=maxVal; number.step=1; number.value=0; number.id=`number-${star}`;
+        const error = document.createElement('div'); error.className='error'; error.textContent=`Max ${maxVal}`;
+        const bar = document.createElement('div'); bar.className='bar';
+        const barInner = document.createElement('div'); barInner.className='bar-inner'; barInner.id=`bar-inner-${star}`; bar.appendChild(barInner);
+        slider.addEventListener('input', ()=>{ number.value = slider.value; update(); });
+        number.addEventListener('input', ()=>{ let val = parseInt(number.value)||0; if(val>maxVal){ number.value=maxVal; slider.value=maxVal; error.style.visibility='visible'; setTimeout(()=>error.style.visibility='hidden',2000); val=maxVal; } else { slider.value=val; } update(); });
+        group.appendChild(label); group.appendChild(slider); group.appendChild(number);
+        containerEl.appendChild(group); containerEl.appendChild(error); containerEl.appendChild(bar);
+      }); update();
+    }
+    function update() {
+      stars.forEach(star => { counts[star] = parseInt(document.getElementById(`number-${star}`).value) || 0; });
+      let totalInit = stars.reduce((sum, s) => sum + counts[s], 0);
+      stars.forEach(star => {
+        const val = counts[star];
+        const otherSum = totalInit - val;
+        let limit = maxVal - otherSum;
+        if(limit < 0) limit = 0;
+        const sliderEl = document.getElementById(`slider-${star}`);
+        const numberEl = document.getElementById(`number-${star}`);
+        sliderEl.max = limit;
+        numberEl.max = limit;
+        if(val > limit) { counts[star] = limit; sliderEl.value = limit; numberEl.value = limit; }
+      });
+      let total=0, sum=0;
+      stars.forEach(star=>{ total += counts[star]; sum += counts[star] * star; });
+      document.getElementById('total').textContent = total;
+      const avg = total ? (sum/total).toFixed(2) : '0.00';
+      document.getElementById('average').innerHTML = `${avg}<span class="star">⭐</span>`;
+      stars.forEach(star=>{
+        const barInner = document.getElementById(`bar-inner-${star}`);
+        const pct = total ? (counts[star]/total)*100 : 0;
+        barInner.style.width = pct + '%';
+        barInner.textContent = pct.toFixed(1) + '%';
+      });
+    }
+    scaleSelect.addEventListener('change', () => createSliders(parseInt(scaleSelect.value)));
+    document.getElementById('calc-btn').addEventListener('click', () => {
+      const currAvg = parseFloat(document.getElementById('current-rating').value) || 0;
+      const currCount = parseInt(document.getElementById('current-reviews').value) || 0;
+      const desired = parseFloat(document.getElementById('desired-rating').value) || 0;
+      const resultEl = document.getElementById('five-needed');
+      if(desired <= currAvg || currCount <= 0 || desired > 5) {
+        resultEl.textContent = 'Desired rating must be above current and ≤ 5.';
+        return;
+      }
+      const currPoints = currAvg * currCount;
+      const needed = Math.ceil((desired * currCount - currPoints) / (5 - desired));
+      resultEl.textContent = `Additional 5★ needed: ${needed}`;
+    });
+    createSliders(maxVal);
+  </script>
+</body>
+</html>
