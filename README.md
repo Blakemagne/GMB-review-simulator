@@ -1,2 +1,1 @@
-# GMB-review-simulator
-vibez man
+we be trying to forecast reviews mane
