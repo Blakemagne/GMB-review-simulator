@@ -1,4 +1,4 @@
-# Review Rating Simulator
+# Review Rating Interactive Sliders & Calculator
 
 A free, open-source web-based tool to visualize and simulate Google-style star ratings and forecast additional 5★ reviews needed to reach a target average. Built with vanilla HTML, CSS, and JavaScript, it mimics a Podium, Notion, and Brilliant style aesthetic (i.e. clean typography with Inter font, soft shadows, rounded corners, and minimalist layout) and runs entirely client-side.
 
